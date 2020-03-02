@@ -57,8 +57,10 @@ class Main:
                 pcQueue.put_nowait(bytes(newmsg, 'utf-8'))
                 ardQueue.put_nowait(bytes(newmsg, 'utf-8'))
             else:
-                print("Read from Bluetooth:%s\n" % msg+" incorrect format received")
+                print("Read from Bluetooth:%s\n" %
+                      msg+" incorrect format received")
 #                pass
+
     def writeBt(self, btQueue):
         while 1:
             if not btQueue.empty():
@@ -75,7 +77,7 @@ class Main:
             if len(strmsg) != 0 and strmsg[0] == "D":
                 print ("Read from serial: %s\n" % msg)
                 btQueue.put_nowait(bytes(newmsg, 'utf-8'))
-            elif len(strmsg) != 0:
+            elif len(strmsg) != 0 and strmsg[0] == "P":
                 print ("Read from serial: %s\n" % msg)
                 pcQueue.put_nowait(bytes(newmsg, 'utf-8'))
             elif len(strmsg) != 0 and strmsg[0] == "Z":
@@ -84,7 +86,8 @@ class Main:
                 pcQueue.put_nowait(bytes(newmsg, 'utf-8'))
 
             else:
-                print("Read from serial: %s\n" % msg+" incorrect format received")
+                print("Read from serial: %s\n" %
+                      msg+" incorrect format received")
 #               pass
 
     def writeArd(self, ardQueue):
@@ -96,24 +99,34 @@ class Main:
 
     # read/write from PC (Serial comm)
     def readPc(self, ardQueue, btQueue):
+        with open("pc_log.txt","w",newline="") as f:
+            f.write("start\n")
         while 1:
             msg = self.pc.read()
             strmsg = msg.decode('utf-8')
-            newmsg = strmsg[1:]
-            if len(strmsg) != 0 and strmsg[0] == "A":
-                print ("Read from WIFI: %s\n" % msg)
-                ardQueue.put_nowait(bytes(newmsg, 'utf-8'))
-            elif len(strmsg) != 0 and strmsg[0] == "D":
-                print ("Read from WIFI: %s\n" % msg)
-                btQueue.put_nowait(bytes(newmsg, 'utf-8'))
-            elif len(strmsg) != 0 and strmsg[0] == "Z":
-                print ("Read from WIFI: %s\n" % msg)
-                btQueue.put_nowait(bytes(newmsg, 'utf-8'))
-                ardQueue.put_nowait(bytes(newmsg, 'utf-8'))
+            msgs = strmsg.split('\r\n')
+            with open("pc_log.txt", "a", newline="") as f:
+                for m in msgs:
+                    if m is not None:
+                        f.write(m+"\n")
+            for msg in msgs:
+                newmsg = msg[1:]+'\r\n'
+                if len(strmsg) != 0 and strmsg[0] == "A":
+                    print ("Read from WIFI: %s\n" % msg)
+                    ardQueue.put_nowait(bytes(newmsg, 'utf-8'))
+                elif len(strmsg) != 0 and strmsg[0] == "D":
+                    print ("Read from WIFI: %s\n" % msg)
+                    btQueue.put_nowait(bytes(newmsg, 'utf-8'))
+                elif len(strmsg) != 0 and strmsg[0] == "Z":
+                    print ("Read from WIFI: %s\n" % msg)
+                    btQueue.put_nowait(bytes(newmsg, 'utf-8'))
+                    ardQueue.put_nowait(bytes(newmsg, 'utf-8'))
 
-            else:
-                print("Read from WIFI: %s\n" % msg+" incorrect format received")
-#                pass
+                else:
+                    print("Read from WIFI: %s\n" %
+                          msg+" incorrect format received")
+#                  pass
+
     def writePC(self, pcQueue):
         while 1:
             if not pcQueue.empty():
@@ -137,7 +150,7 @@ class Main:
             _thread.start_new_thread(self.writeBt, (self.btQueue,))
             _thread.start_new_thread(self.writeArd, (self.ardQueue,))
             _thread.start_new_thread(self.writePC, (self.pcQueue,))
-#			threading.thread(target=self.sendImg.run).start()
+            threading.Thread(target=self.sendImg.run).start()
 
         except Exception as e:
             print ("Error in threading: %s" % str(e))
