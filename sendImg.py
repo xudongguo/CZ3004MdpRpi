@@ -10,6 +10,7 @@ class sendImg:
   def __init__(self, host=WIFI_IP, port=IMGREG_PORT):
     self.host = host
     self.port = port
+    self.count = 0
     self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.serversocket.bind((self.host, self.port))
     self.serversocket.listen(1) #only connect up to 1 request
@@ -43,5 +44,16 @@ class sendImg:
       print('Image', count , 'sent')
       self.output.truncate(0)
       count += 1
-      time.sleep(0.8)
+      time.sleep(0.5)
 
+  # this functions take 2 pictures every time the robot moves
+  def takeTwice(self):
+    for i in range(2):
+      self.camera.capture(self.output, 'rgb')
+      frame = self.output.array
+      data = pickle.dumps(frame)
+      # send to Laptop via HTTP POST
+      r = requests.post("http://"+str(self.address[0])+":8123", data=data)
+      print("Image", self.count, "sent")
+      self.output.truncate(0)
+      self.count+=1

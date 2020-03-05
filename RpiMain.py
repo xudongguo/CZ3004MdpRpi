@@ -51,11 +51,11 @@ class Main:
                 ardQueue.put_nowait(bytes(newmsg+'\n', 'utf-8'))
             elif len(strmsg) != 0 and strmsg[0] == "P":
                 print ("Read from Bluetooth: %s\n" % msg)
-                pcQueue.put_nowait(bytes(newmsg, 'utf-8'))
+                pcQueue.put_nowait(bytes(newmsg+'\n', 'utf-8'))
             elif len(strmsg) != 0 and strmsg[0] == "Z":
                 print ("Read from Bluetooth: %s\n" % msg)
-                pcQueue.put_nowait(bytes(newmsg, 'utf-8'))
-                ardQueue.put_nowait(bytes(newmsg, 'utf-8'))
+                pcQueue.put_nowait(bytes(newmsg+'\n', 'utf-8'))
+                ardQueue.put_nowait(bytes(newmsg+'\n', 'utf-8'))
             else:
                 print("Read from Bluetooth:%s\n" %
                       msg+" incorrect format received")
