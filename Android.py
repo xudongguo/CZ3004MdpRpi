@@ -4,6 +4,9 @@ import time
  
 class Android:
     
+    def _init_(self):
+        pass
+    
     def connect(self,uuid):
         try:
             
