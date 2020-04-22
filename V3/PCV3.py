@@ -30,7 +30,6 @@ class PCV3:
 
     def connectImg(self):
         self.sendImg = sendImg()
-        #threading.Thread(target=self.sendImg.connect).start()
 
     def disconnect(self):
         try:
@@ -64,7 +63,7 @@ class PCV3:
                         continue
 
                     if ( message[0] == 82 and message[1] == 80):
-#                        threading.Thread(target=self.sendImg.takePic).start()
+                        threading.Thread(target=self.sendImg.takePic).start()
                         continue
 
                     if (message[0] == 68):
